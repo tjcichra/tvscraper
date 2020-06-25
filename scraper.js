@@ -28,9 +28,8 @@ con.connect(function(err) {
 		while(true) {
 
 			const textContent = await page.evaluate(() => {
-				const tds = document.querySelectorAll(".x-grid3-body")[1]
-				var childs = Array.from(tds.children)
-				return childs.map(c => c.textContent)
+				const tds = Array.from(document.querySelectorAll(".x-grid3-body")[1].childNodes)
+				return tds.map(c => c.childNodes)
 			});
 
 			console.log(textContent)
