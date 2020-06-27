@@ -1,12 +1,16 @@
-//Get the required modules
-const puppeteer = require('puppeteer-core');
-const mysql = require('mysql');
+//-------------------------------------------------FLAGS----------------------------------------------------------------------
+//create table info( id int NOT NULL AUTO_INCREMENT, datetime DATETIME NOT NULL, system VARCHAR(30) NOT NULL, frontend int NOT NULL, frequency double, snr_in_dB double, signal_strength_percentage double, snr_percentage double, signal_strength_in_dB double, PRIMARY KEY(id));
+//ALTER TABLE info CHANGE `datetime` `datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 
-//Program flag, feel free to change these
-var flag = {
+//Website and system flags, feel free to change these
+var siteflags = {
 	systemname: "dvrpi",
 	port: "9981",
-	extension: "/extjs.html",
+	extension: "/extjs.html"
+}
+
+//MySQL flags, feel free to change these
+var sqlflags = {
 	sqlhost: "localhost",
 	sqluser: "root",
 	sqlpassword: "test",
@@ -14,34 +18,55 @@ var flag = {
 	sqltable: "info"
 }
 
+//---------------------------------------------BEGINNING OF CODE------------------------------------------------------------
+
+//Get the required modules
+const puppeteer = require('puppeteer-core');
+const mysql = require('mysql');
+
+//Helper function for handling errors
+function errorHandle(err, result) {
+	if(err) {
+		throw err
+	}
+}
+
 //Create the connection to the MySQL database
 var con = mysql.createConnection({
-	host: flag.sqlhost,
-	user: flag.sqluser,
-	password: flag.sqlpassword
+	host: sqlflags.sqlhost,
+	user: sqlflags.sqluser,
+	password: sqlflags.sqlpassword
 });
 
 //Run when the connection is created
 con.connect(function(err) {
-	con.query("use " + flag.sqldatabase + ";", function(err, result) {
-		if(err) throw err;
-	});
 
+	//Create asyncronous function
 	(async () => {
+		//Enter specified database
+		con.query("use " + sqlflags.sqldatabase + ";", errorHandle)
+
+		//Launches the browser and creates a new page
 		const browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'], devtools: false, executablePath: 'chromium-browser' });
 		const page = await browser.newPage();
 
-		await page.goto('http://' + flag.systemname + ':' + flag.port + flag.extension);
+		//Goto the website and wait for things to load
+		await page.goto('http://' + siteflags.systemname + ':' + siteflags.port + siteflags.extension);
 		await page.waitFor(1000)
 
+		//Click on the "Status" button and wait for things to load
 		await page.mouse.click(463, 12);
 		await page.waitFor(1000)
 
+		//Keep looping forever and ever and ever and ever and ever and ever and ever
 		while(true) {
 
+			//Get data from page
 			const textContent = await page.evaluate(() => {
+				//Get the body of the table
 				const tds = Array.from(document.querySelectorAll(".x-grid3-body")[1].childNodes)
-				return tds.map(c => c.childNodes).map(c => c[0]).map(c => c.childNodes[0]).map(function(c) {
+
+				return tds.map(c => c.childNodes[0].childNodes[0]).map(function(c) {
 					var data = []
 					var i
 
@@ -70,11 +95,11 @@ con.connect(function(err) {
 				//console.log(textContent)
 
 				if(textContent[i][0] != '' && textContent[i][10] != '' && textContent[i][11] != '') {
-					con.query("insert into " + flag.sqltable + " (system, frontend, frequency, " + snrstr + ", " + sigstrengthstr + ") values (\"" + flag.systemname + "\", " + textContent[i][0] + ", " + textContent[i][1] + "," + textContent[i][10] + "," + textContent[i][11] + ");", function(err, result) {
+					con.query("insert into " + sqlflags.sqltable + " (system, frontend, frequency, " + snrstr + ", " + sigstrengthstr + ") values (\"" + siteflags.systemname + "\", " + textContent[i][0] + ", " + textContent[i][1] + "," + textContent[i][10] + "," + textContent[i][11] + ");", function(err, result) {
 						if(err) throw err;
 					});
 				} else {
-					con.query("insert into " + flag.sqltable + " (system, frontend) values (\"" + flag.systemname + "\", " + textContent[i][0] + ");")
+					con.query("insert into " + sqlflags.sqltable + " (system, frontend) values (\"" + siteflags.systemname + "\", " + textContent[i][0] + ");")
 				}
 			}
 
