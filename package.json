@@ -1,0 +1,25 @@
+{
+  "name": "tvscraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scraper.js",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "puppeteer": "^4.0.0",
+    "puppeteer-core": "^4.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjcichra/tvscraper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tjcichra/tvscraper/issues"
+  },
+  "homepage": "https://github.com/tjcichra/tvscraper#readme"
+}
