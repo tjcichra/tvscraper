@@ -4,9 +4,10 @@
   "description": "",
   "main": "scraper.js",
   "dependencies": {
+    "command-line-args": "^5.1.1",
     "mysql": "^2.18.1",
-    "puppeteer": "^4.0.0",
-    "puppeteer-core": "^4.0.0"
+    "puppeteer": "^4.0.1",
+    "puppeteer-core": "^4.0.1"
   },
   "devDependencies": {},
   "scripts": {
